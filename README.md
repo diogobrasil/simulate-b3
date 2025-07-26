@@ -37,6 +37,10 @@ Siga os passos abaixo para configurar o ambiente e rodar a aplicação:
     ```bash
     pip install -r requirements.txt
     ```
+*Nota: caso seja solicitado _upgrade_ do _pip_, rode o comando abaixo:*
+```bash
+    python -m pip install --upgrade pip
+```
 
 ## Estrutura do Projeto   
 ```
@@ -46,20 +50,20 @@ Siga os passos abaixo para configurar o ambiente e rodar a aplicação:
 ├── data/
 |   └──stocks.csv
 ├── requirements.txt
-├── train\_linear\_models.py
-├── trading\_strategy.py  \# Contém a classe ActionPredictionTrading
-├── models/               \# Pasta criada automaticamente ao rodar o script train_linear_models.py
-│   ├── VALE3\_model.pkl
-│   ├── PETR4\_model.pkl
+├── train_linear_models.py
+├── trading_strategy.py  # Contém a classe ActionPredictionTrading
+├── models/               # Pasta criada automaticamente ao rodar o script train_linear_models.py
+│   ├── VALE3_model.pkl
+│   ├── PETR4_model.pkl
 │   └── ... (outros modelos para suas 11 ações)
-└── utils/                \# Pasta criada automaticamente ao rodar o script train_linear_models.py
+└── utils/                # Pasta criada automaticamente ao rodar o script train_linear_models.py
     ├──metrics/
     ├──scalers/
     └──arrays/
-      ├── VALE3\_y\_test\_v1.0.npy
-      ├── VALE3\_y\_pred\_v1.0.npy
-      ├── PETR4\_y\_test\_v1.0.npy
-      ├── PETR4\_y\_pred\_v1.0.npy
+      ├── VALE3_y_test_v1.0.npy
+      ├── VALE3_y_pred_v1.0.npy
+      ├── PETR4_y_test_v1.0.npy
+      ├── PETR4_y_pred_v1.0.npy
       └── ... (arquivos NPY para suas 11 ações)
    
 ```
