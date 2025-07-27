@@ -48,8 +48,8 @@ class ActionPredictionTrading:
         stop_triggered = 0
 
         # O loop agora itera sobre as linhas do DataFrame de simulação já preparado
-        # O len(self.df) já é 6 se você preparou para 6 trades (D1-D6)
-        for i in range(len(self.df)): # Loop diretamente sobre as 6 linhas
+        # O len(self.df) já é 4 se você preparou para 4 trades (D1-D4)
+        for i in range(len(self.df)): # Loop diretamente sobre as 4 linhas
             price_today = self.df.iloc[i]['actual']
             price_tomorrow = self.df.iloc[i]['actual_next'] # 'actual_next' já está na linha atual
             predicted_price = self.df.iloc[i]['predicted'] # 'predicted' já é a previsão para 'actual_next'
@@ -118,7 +118,7 @@ class ActionPredictionTrading:
         if df_bh.empty:
             raise ValueError("DataFrame for Buy-and-Hold is empty. Ensure the data was loaded correctly.")
         
-        # Se for uma simulação de 6 trades, df_bh terá 6 ou 7 linhas.
+        # Se for uma simulação de 4 trades, df_bh terá 4 ou 5 linhas.
         # price_buy é o preço do primeiro dia da semana (df.iloc[0]['actual'])
         # price_sell é o preço do último dia da simulação (o "tomorrow_price" da última linha)
         price_buy = df_bh.iloc[0]['actual']
@@ -146,6 +146,6 @@ class ActionPredictionTrading:
             'final_price': price_sell,
             'final_capital': final_capital,
             'shares_held': shares,
-            'days_held': len(df_bh) + 1, # Se df_bh tem 6 dias, são 7 dias de hold (do 1o ao 7o)
+            'days_held': len(df_bh) + 1, # Se df_bh tem 4 dias, são 5 dias de hold (do 1o ao 5o)
             'capital_history': capital_history # Adicionado para possível visualização futura
         }

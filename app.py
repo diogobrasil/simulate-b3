@@ -51,9 +51,9 @@ def load_full_test_set_npy(asset_ticker):
         st.error(f"Erro ao carregar arquivos NPY para {asset_ticker}: {e}")
         st.stop()
 
-def get_seven_dates_for_week(df_asset_index, year, month_name, week_number_str):
+def get_five_dates_for_week(df_asset_index, year, month_name, week_number_str):
     """
-    Retorna uma lista de 7 pd.Timestamps para a semana selecionada
+    Retorna uma lista de 5 pd.Timestamps para a semana selecionada
     a partir do índice de datas do DataFrame de um ativo.
     """
     month_map = {
@@ -71,15 +71,15 @@ def get_seven_dates_for_week(df_asset_index, year, month_name, week_number_str):
     if not dates_in_month_timestamps:
         return None, "Não há dados para o mês e ano selecionados no histórico disponível."
 
-    # Agrupar datas em "semanas" de até 7 dias, baseadas nos dias disponíveis
-    weeks_list_of_timestamps = [dates_in_month_timestamps[i:i + 7] for i in range(0, len(dates_in_month_timestamps), 7)]
+    # Agrupar datas em "semanas" de até 5 dias, baseadas nos dias disponíveis
+    weeks_list_of_timestamps = [dates_in_month_timestamps[i:i + 5] for i in range(0, len(dates_in_month_timestamps), 5)]
 
     if week_num > 0 and week_num <= len(weeks_list_of_timestamps):
         selected_week_timestamps = weeks_list_of_timestamps[week_num - 1]
-        
-        # Opcional: validar se a semana tem exatamente 7 dias úteis/negociados
-        if len(selected_week_timestamps) != 7: # ESSA VALIDAÇÃO É CRÍTICA PARA A CONSISTÊNCIA DA SIMULAÇÃO DE 7 DIAS
-            return None, f"A {week_number_str} de {month_name} em {year} tem {len(selected_week_timestamps)} dias negociados, mas esperamos 7 para a simulação de trading. Escolha outra semana."
+
+        # Opcional: validar se a semana tem exatamente 5 dias úteis/negociados
+        if len(selected_week_timestamps) != 5: # ESSA VALIDAÇÃO É CRÍTICA PARA A CONSISTÊNCIA DA SIMULAÇÃO DE 5 DIAS
+            return None, f"A {week_number_str} de {month_name} em {year} tem {len(selected_week_timestamps)} dias negociados, mas esperamos 5 para a simulação de trading. Escolha outra semana."
         
         return selected_week_timestamps, None
     else:
@@ -100,12 +100,12 @@ selected_asset = st.sidebar.selectbox("Selecione o Ativo:", available_assets)
 # É mais seguro obter os anos apenas do ativo selecionado
 df_selected_asset_series = df_all_stocks[selected_asset]
 available_years = sorted(df_selected_asset_series.index.year.unique().tolist(), reverse=True)
-selected_year = st.sidebar.selectbox("Selecione o Ano:", available_years)
+selected_year = st.sidebar.selectbox("Selecione o Ano:", available_years[:4])
 
 available_months = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
 selected_month = st.sidebar.selectbox("Selecione o Mês:", available_months)
 
-available_weeks = ["1ª Semana", "2ª Semana", "3ª Semana", "4ª Semana", "5ª Semana"] # Inclui 5ª semana caso o mês tenha
+available_weeks = ["1ª Semana", "2ª Semana", "3ª Semana", "4ª Semana"] 
 selected_week = st.sidebar.selectbox("Selecione a Semana:", available_weeks)
 
 # Opções de simulação de trading
@@ -124,8 +124,8 @@ if st.sidebar.button("Rodar Simulação"):
     real_full_test, predicted_full_test = load_full_test_set_npy(selected_asset)
     
     # 2. Obter as 7 datas correspondentes à semana selecionada para o ativo específico
-    seven_dates_for_week_timestamps, error_msg = \
-        get_seven_dates_for_week(df_selected_asset_series.index, selected_year, selected_month, selected_week)
+    five_dates_for_week_timestamps, error_msg = \
+        get_five_dates_for_week(df_selected_asset_series.index, selected_year, selected_month, selected_week)
 
     if error_msg:
         st.error(error_msg)
@@ -142,42 +142,42 @@ if st.sidebar.button("Rodar Simulação"):
     # Encontra o índice da primeira data da semana selecionada DENTRO do período de teste NPY
     try:
         # Pega a posição da primeira data da semana selecionada no índice do período de teste
-        start_idx_in_test_set = test_set_dates_in_df.get_loc(seven_dates_for_week_timestamps[0])
+        start_idx_in_test_set = test_set_dates_in_df.get_loc(five_dates_for_week_timestamps[0])
     except KeyError:
-        st.error(f"Erro: A primeira data da semana selecionada ({seven_dates_for_week_timestamps[0].strftime('%Y-%m-%d')}) não foi encontrada no período de teste NPY para {selected_asset}. Verifique a consistência das datas e do conjunto de teste.")
+        st.error(f"Erro: A primeira data da semana selecionada ({five_dates_for_week_timestamps[0].strftime('%Y-%m-%d')}) não foi encontrada no período de teste NPY para {selected_asset}. Verifique a consistência das datas e do conjunto de teste.")
         st.stop()
     
-    # Verifica se há dados suficientes nos NPYs a partir do start_idx_in_test_set para cobrir 7 dias
-    if (start_idx_in_test_set + 7) > num_test_points:
-        st.error(f"Dados NPY insuficientes para a semana selecionada. O conjunto de teste NPY não cobre o período até {seven_dates_for_week_timestamps[-1].strftime('%Y-%m-%d')}.")
+    # Verifica se há dados suficientes nos NPYs a partir do start_idx_in_test_set para cobrir 5 dias
+    if (start_idx_in_test_set + 5) > num_test_points:
+        st.error(f"Dados NPY insuficientes para a semana selecionada. O conjunto de teste NPY não cobre o período até {five_dates_for_week_timestamps[-1].strftime('%Y-%m-%d')}.")
         st.stop()
 
-    # Fatia os arrays NPY para os 7 dias da semana selecionada
-    real_values_for_plot = real_full_test[start_idx_in_test_set : start_idx_in_test_set + 7]
-    predicted_values_for_plot = predicted_full_test[start_idx_in_test_set : start_idx_in_test_set + 7]
+    # Fatia os arrays NPY para os 5 dias da semana selecionada
+    real_values_for_plot = real_full_test[start_idx_in_test_set : start_idx_in_test_set + 5]
+    predicted_values_for_plot = predicted_full_test[start_idx_in_test_set : start_idx_in_test_set + 5]
     
     # As datas para plotagem são as Timestamps que já obtivemos
-    dates_for_plot = seven_dates_for_week_timestamps
+    dates_for_plot = five_dates_for_week_timestamps
 
     # Validação final: garantir que os tamanhos das listas são consistentes
-    if not (len(dates_for_plot) == len(real_values_for_plot) == len(predicted_values_for_plot) == 7):
-        st.error("Erro interno: Inconsistência no número de pontos para plotagem. Deveriam ser 7 para a semana.")
+    if not (len(dates_for_plot) == len(real_values_for_plot) == len(predicted_values_for_plot) == 5):
+        st.error("Erro interno: Inconsistência no número de pontos para plotagem. Deveriam ser 5 para a semana.")
         st.stop()
 
     # --- Preparar DataFrame para a Classe de Trading ---
-    # Este DataFrame terá 6 linhas (D1-D6) para 6 trades (um por dia útil)
+    # Este DataFrame terá 4 linhas (D1-D4) para 5 trades (um por dia útil)
     # cada linha representa a informação DISPONÍVEL no início do dia
     
-    # date: D1 a D6
-    trading_dates = dates_for_plot[0:6] 
-    # actual: R1 a R6 (preço de "hoje" para tomar decisão)
-    trading_actual = real_values_for_plot[0:6]
-    # predicted: Pred_R2 a Pred_R7 (previsão para "amanhã", feita "hoje")
+    # date: D1 a D5
+    trading_dates = dates_for_plot[0:4] 
+    # actual: R1 a R5 (preço de "hoje" para tomar decisão)
+    trading_actual = real_values_for_plot[0:4]
+    # predicted: Pred_R2 a Pred_R6 (previsão para "amanhã", feita "hoje")
     # ATENÇÃO: predicted_values_for_plot[i] é a previsão para real_values_for_plot[i]
     # Então, se queremos a previsão para R2 (que acontece em D2), precisamos de predicted_values_for_plot[1]
-    trading_predicted = predicted_values_for_plot[1:7]
-    # actual_next: R2 a R7 (preço real de "amanhã" para calcular PnL)
-    trading_actual_next = real_values_for_plot[1:7]
+    trading_predicted = predicted_values_for_plot[1:5]
+    # actual_next: R2 a R6 (preço real de "amanhã" para calcular PnL)
+    trading_actual_next = real_values_for_plot[1:5]
 
     df_for_trading_class = pd.DataFrame({
         'date': trading_dates,
@@ -235,7 +235,7 @@ if st.sidebar.button("Rodar Simulação"):
 
     display_df = initial_data_display.copy()
 
-    for i in range(len(dates_for_plot)): # Itera sobre os 7 dias para o gráfico
+    for i in range(len(dates_for_plot)): # Itera sobre os 5 dias para o gráfico
         new_row = pd.DataFrame({
             'Data': [dates_for_plot[i]],
             'Preço Real': [real_values_for_plot[i]],
@@ -249,12 +249,19 @@ if st.sidebar.button("Rodar Simulação"):
             fig.data[1].x = display_df['Data']
             fig.data[1].y = display_df['Preço Previsto']
         
+            fig.update_xaxes(
+                tickmode='array', # Define que os ticks serão definidos por um array
+                tickvals=display_df['Data'].tolist(), # Os valores dos ticks serão as datas que já foram plotadas
+                # Opcional: Para rótulos mais concisos no eixo, pode formatar
+                ticktext=[d.strftime('%d/%m') for d in display_df['Data']] 
+            )
+        
         with chart_placeholder:
             st.plotly_chart(fig, use_container_width=True)
         
         with table_placeholder:
-            # Mostra apenas as primeiras 6 linhas do df_for_trading_class, se relevante
-            # display_df agora contém os 7 dias de dados para o gráfico.
+            # Mostra apenas as primeiras 4 linhas do df_for_trading_class, se relevante
+            # display_df agora contém os 5 dias de dados para o gráfico.
             # Se quiser mostrar a tabela de dados de trade, pode ser:
             st.dataframe(display_df.set_index('Data').style.format(precision=2))
         
@@ -273,17 +280,15 @@ if st.sidebar.button("Rodar Simulação"):
             "Taxa de Acerto (Hit Rate)",
             "Sharpe Ratio",
             "Max Drawdown",
-            "Total de Trades",
-            "Stop Loss Acionado"
+            "Total de Trades"
         ],
-        "Estratégia do Modelo": [
+        "Estratégia do Modelo (Com Stop Loss)" if enable_stop_loss else "Estratégia do Modelo (Sem Stop Loss)": [
             f"{model_strategy_results['total_return']:.5%}",
             f"R$ {model_strategy_results['final_capital']:,.2f}",
             f"{model_strategy_results['hit_rate']:.2%}",
             f"{model_strategy_results['sharpe_ratio']:.2f}",
             f"{model_strategy_results['max_drawdown']:.2%}",
-            f"{model_strategy_results['total_trades']}",
-            f"{model_strategy_results['stop_triggered']}"
+            f"{model_strategy_results['total_trades']}"
         ],
         "Buy-and-Hold": [
             f"{buy_and_hold_results['total_return']:.5%}",
@@ -291,8 +296,7 @@ if st.sidebar.button("Rodar Simulação"):
             "-", # Não aplicável para B&H
             "-", # Não aplicável para B&H
             "-", # Max Drawdown para B&H precisaria de mais lógica na classe, se quiser calcular
-            "-", # Não aplicável para B&H
-            "-"  # Não aplicável para B&H
+            "-" # Não aplicável para B&H
         ]
     }
 
