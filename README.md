@@ -117,7 +117,7 @@ Antes de rodar o aplicativo, você deve preparar os dados e treinar os modelos:
 
     Execute o script de treinamento:
     ```bash
-    python train_linear_models.py
+    python scripts/train_linear_models.py
     ```
     (Certifique-se de que `train_linear_models.py` está configurado para salvar os `.npy`s com a nomenclatura e na pasta corretas.)
 

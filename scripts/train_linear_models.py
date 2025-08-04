@@ -1,3 +1,5 @@
+import sys
+sys.path.append('.')  # Adiciona o diretório atual ao sys.path para permitir importações relativas, como classes.pipeline_linear_regression
 from classes.pipeline_linear_regression import TrainingPipeline
 
 def print_metrics(results: dict):
