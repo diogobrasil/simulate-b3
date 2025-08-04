@@ -5,7 +5,7 @@ import time
 import plotly.graph_objects as go
 from datetime import date, timedelta
 import calendar
-from trading_strategy import ActionPredictionTrading
+from classes.trading_strategy import ActionPredictionTrading
 
 st.set_page_config(layout="wide", page_title="Simulação Dinâmica de Ativos", page_icon="📈")
 

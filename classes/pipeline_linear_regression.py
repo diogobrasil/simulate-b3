@@ -1,4 +1,4 @@
-from linear_regression import LinearRegression
+from classes.linear_regression import LinearRegression
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import pandas as pd

@@ -1,4 +1,4 @@
-from trainning_linear_regression import TrainingPipeline
+from classes.pipeline_linear_regression import TrainingPipeline
 
 def print_metrics(results: dict):
     """
