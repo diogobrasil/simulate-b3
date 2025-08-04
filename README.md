@@ -1,6 +1,7 @@
 # 📈 Simulador de Desempenho de Ativos Financeiros
 
-Este projeto oferece uma aplicação interativa construída com Streamlit para simular o comportamento de ativos financeiros. Ele permite visualizar dinamicamente os preços reais e as previsões de um modelo de Regressão Linear, além de comparar o desempenho de uma estratégia de trading baseada nas previsões com a estratégia de Buy-and-Hold.
+Este projeto oferece uma aplicação interativa construída com Streamlit para simular o comportamento de ativos financeiros. Ele permite visualizar dinamicamente os preços reais e as previsões de um modelo de Regressão Linear, além de comparar o desempenho de uma estratégia de trading baseada nas previsões com a estratégia de Buy-and-Hold.    
+Neste projeto você pode consultar [README.ipynb](./README.ipynb) para mais entendimento do código principal do app!!!
 
 ## Funcionalidades
 
@@ -50,8 +51,13 @@ Siga os passos abaixo para configurar o ambiente e rodar a aplicação:
 ├── data/
 |   └──stocks.csv
 ├── requirements.txt
-├── train_linear_models.py
-├── trading_strategy.py  # Contém a classe ActionPredictionTrading
+├── scripts/
+|   └── train_linear_models.py
+├── classes/
+|   ├── trading_strategy.py  # Contém a classe ActionPredictionTrading
+|   ├── pipeline_linear_regression.py
+|   ├── model_input_linear_regression.py
+|   └── linear_regression.py
 ├── models/               # Pasta criada automaticamente ao rodar o script train_linear_models.py
 │   ├── VALE3_model.pkl
 │   ├── PETR4_model.pkl
@@ -67,14 +73,29 @@ Siga os passos abaixo para configurar o ambiente e rodar a aplicação:
       └── ... (arquivos NPY para suas 11 ações)
    
 ```
-**Explicação dos Arquivos e Pastas:**
+## **Explicação dos Arquivos e Pastas:**
+**APP**   
+* `app.py`: O script principal da aplicação Streamlit.      
 
-* `app.py`: O script principal da aplicação Streamlit.
+**Dados**   
 * `stocks.csv`: Contém os dados históricos de todas as suas ações. **Cada coluna deve ser um ticker de ação (ex: VALE3, PETR4) e o índice/primeira coluna deve ser a data (`Date`).**
+
+**Ambiente de desenvolvimento**   
 * `requirements.txt`: Lista de todas as bibliotecas Python necessárias.
+
+**Scripts**   
 * `train_linear_models.py`: Script para treinar os modelos de regressão linear para cada ação e gerar os arquivos `.pkl` dos modelos/scalers (se aplicável) e os arquivos `.npy` do conjunto de teste.
-* `trading_strategy.py`: Módulo contendo a classe `ActionPredictionTrading`.
+
+**Classes**   
+* `trading_strategy.py`: Módulo contendo a classe `ActionPredictionTrading`.   
+* `linear_regression.py`: Módulo que contém a classe `LinearRegression` que usa a equação normal para encontrar os parâmetros do modelo linear.   
+* `pipeline_linear_regression`: Módulo que contém a classe `TrainingPipeline`, responsável pelo treinamento e avalição das métricas do modelo linear.   
+* `model_input.py`: Módulo que contém a classe `LRModelInput` responsavel pelo pipeline de _input_ dos modelos lineares.   
+
+**Modelos**
 * `models/`: Pasta para armazenar os modelos treinados (arquivos `.pkl` ou similar) para cada ação. **Embora o `app.py` não os carregue para a simulação de trade, o `train_linear_models.py` os gerará e eles são importantes para o processo de treinamento.**   
+
+**Utils**   
 * `metrics/`: Contem as métricas dos modelos para fins de consulta.   
 * `scalers/`: Pasta contendo os _scalers_ dos modelos treinados.   
 * `arrays/`: Pasta para armazenar os arquivos `.npy` contendo os valores reais e previstos do **conjunto de teste completo** para cada ação.
@@ -115,7 +136,8 @@ O aplicativo será aberto automaticamente em seu navegador padrão.
 ## Notas Importantes
 
 * A simulação de trade assume que os arquivos `.npy` de teste contêm os dados na mesma ordem cronológica que as datas no `stocks.csv`.
-* Você pode ajustar os parâmetros da simulação de trading (Capital Inicial, Ações por Trade, Stop Loss) na barra lateral do aplicativo Streamlit.
+* Você pode ajustar os parâmetros da simulação de trading (Capital Inicial, Ações por Trade, Stop Loss) na barra lateral do aplicativo Streamlit.   
+* Consulte [README.ipynb](./README.ipynb) para mais entendimento do código principal do app.
 
 ---
 # Reconhecimentos e Direitos Autorais   
